@@ -1,60 +1,74 @@
 <template>
-
-    <BaelGrid :allitems="allBlogPosts"></BaelGrid>
+  <div
+    :class="['l-section', 'theme--' + theme, { 'light-mode': stayInLightMode }]">
+    <slot />
+  </div>
 </template>
 
-<script>
-import BaelGrid from "~/components/BaelGrid";
-export default {
-    watchQuery: ['page'],
-
-   transition (to, from) {
-     
-    if (!from) return 'fade'
-    return +to.query.page > +from.query.page ? 'slide-right' : 'slide-left'
+<script setup>
+import { computed } from "vue";
+const props = defineProps({
+  theme: {
+    type: String,
+    validator(value) {
+      return ["white", "yellow", "green", "orange", "grey", "blue"].includes(value);
+    },
   },
-  name: "Index",
-  components: { BaelGrid },
-  data() {
-    return {};
+  noSpacingTop: {
+    type: Boolean,
+    default: false,
   },
-  methods: {},
+  noSpacingBottom: {
+    type: Boolean,
+    default: false,
+  },
+});
 
-  computed: {
-    allBlogPosts() {
-      return this.$store.state.blogPosts;
-    }
-  }
-};
+const stayInLightMode = computed(() => {
+  return (
+    props.theme === "yellow" ||
+    props.theme === "green" ||
+    props.theme === "orange"
+  );
+});
+
+let spacing = "";
+if (props.noSpacingTop && props.noSpacingBottom) {
+  spacing = "0";
+} else if (props.noSpacingTop) {
+  spacing = "0 0 var(--spacing-section-y)";
+} else if (props.noSpacingBottom) {
+  spacing = "var(--spacing-section-y) 0 0";
+} else {
+  spacing = "var(--spacing-section-y) 0";
+}
 </script>
 
-<style>
-
-.browse a {
-  width: 100%;
-}
-.search:focus {
-  outline: none;
-}
-.footer__heading {
-  text-transform: uppercase;
-}
-nav .r {
-  grid-gap: 0;
-}
-.r.full-height {
-  grid-gap: 0;
-}
-@media only screen and (max-width: 40rem) {
-  .xs-collapse {
-    visibility: hidden;
-    visibility: collapse;
-    border: 0 !important;
-    border-color: none !important;
-    padding: 0 !important;
-  }
-  .xs-visible {
-    visibility: visible;
-  }
+<style lang="scss">
+.l-section {
+  padding: v-bind(spacing);
 }
 </style>
+<preview lang="md">
+## How to use 
+### l-section component is used to create a section with a background color and spacing.
+
+----------------------
+```
+- prop.theme: String -> white, yellow, green, orange, grey, blue
+- prop.noSpacingTop: Boolean
+- prop.noSpacingBottom: Boolean
+
+<l-section theme="white" :noSpacingTop="false" :noSpacingBottom="false">
+  ${slot}
+</l-section>
+```
+
+<style>
+.markdown-body {
+  max-width: 640px;
+  margin: 30px auto;
+}
+</style>
+
+</preview>
